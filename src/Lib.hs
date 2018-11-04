@@ -15,14 +15,12 @@ import Data.GenRelativeValidity
 import Data.GenValidity
 import Test.QuickCheck
 
-type GGen t = Gen (GGenResult t)
-
 newtype GGenResult t = GGenResult
     { getGGenResult :: forall b. (forall a. t a -> b) -> b
     }
 
 class GADTGenUnchecked f where
-    gadtGenUnchecked :: GGen f
+    gadtGenUnchecked :: Gen (GGenResult f)
 
 class GenTagUnchecked tag f where
     genTagUnchecked :: tag a -> Gen (f a)
@@ -61,15 +59,3 @@ instance ShowTag Tag Identity where
 
 someFunc :: IO ()
 someFunc = sample (genUnchecked :: Gen (DSum Tag Identity))
--- instance (GADTGenUnchecked tag, GenTagUnchecked tag f) =>
---          GenUnchecked (DSum tag f) where
---     genUnchecked = do
---         tb <- gadtGenUnchecked @tag
---         let TagBox tag = tb
---         funct <- genTagUnchecked (tag :: tag a)
---         pure $ tag :=> (funct :: f a)
---     shrinkUnchecked _ = []
---
--- type ReadS a = String -> [(a , String)]
--- type GReadS t = String -> [(GReadResult t, String)]
--- newtype GReadResult t = forall b (forall a. t a -> b) - >b
